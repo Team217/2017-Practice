@@ -1,0 +1,11 @@
+Battery = 12.2
+680 
+P-.035 I-3.9e-5 D .375
+RPM 3235
+
+p-0.035        12.6 over by a biut hood needs to be 660-680 for far shot
+
+d-0.375
+f-0.0299706
+i-3.76e-5
+rpm-3240
