@@ -10,6 +10,8 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 import java.lang.Math;
 
+import java.io.*;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -64,6 +66,21 @@ public class Robot extends IterativeRobot {
 	AnalogInput hoodEnc;
 	
 	int x = 0;
+	
+	//logging variables
+	double AvgCurrent;
+	double LFCurrent;
+	double RFCurrent;
+	double LRCurrent;
+	double RRCurrent;
+	double gyroVal;
+	double cogxVal;
+	double cogyVal;
+	double currMatchTime;
+	
+	Timer MatchTime;
+	
+	PrintWriter logger;
 	
 	NetworkTable table;
 	
@@ -154,10 +171,32 @@ public class Robot extends IterativeRobot {
 	    CameraServer.getInstance().startAutomaticCapture();
 		
 		smartDash();
+		
+		//Reset Logging variables
+		AvgCurrent    = 0;
+		LFCurrent     = 0;
+		RFCurrent     = 0;
+		LRCurrent     = 0;
+		RRCurrent     = 0;
+		gyroVal       = 0;
+		cogxVal       = 0;
+		cogyVal       = 0;
+		currMatchTime = 0;
+		
+		MatchTime = new Timer();
+		
+		try{
+		    PrintWriter logger = new PrintWriter("LogFileX.txt");
+		} catch (IOException e) {
+		   // do something
+		}
+		
 	}
 
 	@Override
 	public void autonomousInit() {
+		MatchTime.reset();
+		MatchTime.start();
 		flyWheel.setEncPosition(0);
 		//armSolenoid.set(true); //This deploys the arm at the start of the match.
 		frontSolenoid.set(true);//This deploys omni if not already deployed.
@@ -215,6 +254,19 @@ public class Robot extends IterativeRobot {
 		}
 		*/
 		
+		
+		LFCurrent     = leftMaster.getOutputCurrent();
+		RFCurrent     = rightMaster.getOutputCurrent();
+		LRCurrent     = leftSlave.getOutputCurrent();
+		RRCurrent     = rightSlave.getOutputCurrent();
+		AvgCurrent    = (LFCurrent + RFCurrent + LRCurrent + RRCurrent)/4;
+		gyroVal       = horzGyro.getAngle();
+		//cogxVal       = ;
+		//cogyVal       = ;
+		currMatchTime = MatchTime.get();
+		
+		logger.println(" { \"MatchTime\" : " + currMatchTime + "\"Average Drivebase Current Draw\" : " + AvgCurrent + " }" );
+		
 	}
 
 	@Override
@@ -266,6 +318,19 @@ public class Robot extends IterativeRobot {
 		smartDash();
 		System.out.println("Front Left: " + leftMaster.getEncPosition() + " Front Right: " + rightMaster.getEncPosition() + " Back Left: " + leftSlave.getEncPosition() + " Back Right: " + rightSlave.getEncPosition() + " Gyro: "+ horzGyro.getAngle());
 		//System.out.println("P: " + flyP + " I: " + flyI + " D: " + flyD+ " F: " +flyWheel.getF());
+		
+		LFCurrent     = leftMaster.getOutputCurrent();
+		RFCurrent     = rightMaster.getOutputCurrent();
+		LRCurrent     = leftSlave.getOutputCurrent();
+		RRCurrent     = rightSlave.getOutputCurrent();
+		AvgCurrent    = (LFCurrent + RFCurrent + LRCurrent + RRCurrent)/4;
+		gyroVal       = horzGyro.getAngle();
+		//cogxVal       = ;
+		//cogyVal       = ;
+		currMatchTime = MatchTime.get();
+		
+		logger.println(" { \"MatchTime\" : " + currMatchTime + "\"Average Drivebase Current Draw\" : " + AvgCurrent + " }" );
+		
 	}
 
 	/**
@@ -468,6 +533,11 @@ public class Robot extends IterativeRobot {
 
 		
 		return speed;
+	}
+	
+	@Override
+	public void disabledInit(){
+		logger.close();
 	}
 	
 	
