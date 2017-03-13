@@ -11,7 +11,7 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 import java.lang.Math;
 
-import org.usfirst.frc.team217.robot.Robot.GearAuto;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -272,6 +272,7 @@ public class Robot extends IterativeRobot {
 					case pos1:
 						break;
 					case pos2:
+						gearBallAuto = GearAuto.forward;
 						break;
 					case pos3:
 						break;
